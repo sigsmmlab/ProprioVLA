@@ -1,0 +1,63 @@
+\documentclass{article}
+
+% Submission mode:
+\PassOptionsToPackage{numbers,compress}{natbib}
+\usepackage{neurips_2026}
+% Camera-ready:
+% \usepackage[main, final]{neurips_2026}
+% Preprint:
+% \usepackage[preprint]{neurips_2026}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\graphicspath{{figures/}}
+
+\title{ProprioVLA}
+
+\author{%
+  Anonymous Authors \\
+  Anonymous Institution \\
+  \texttt{anonymous@example.com}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{Sections/abstract}
+\end{abstract}
+
+\input{Sections/introduction}
+\input{Sections/related_work}
+\input{Sections/preliminaries}
+\input{Sections/method}
+\input{Sections/experiments}
+\input{Sections/limitations}
+\input{Sections/conclusion}
+
+\begin{ack}
+\input{Sections/acknowledgements}
+\end{ack}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\input{Sections/appendix}
+
+\newpage
+\input{Sections/checklist}
+
+\end{document}
