@@ -1,31 +1,26 @@
 Vision-language-action (VLA) policies have shown strong promise as generalist
 controllers for robot manipulation, yet their action predictions can remain
 fragile under changes in visual perspective. We identify a systematic grounding
-failure: lateral camera shifts induce co-directional shifts in predicted
-end-effector trajectories, even when the underlying robot-scene state is
-unchanged. This behavior suggests that current VLAs may exploit image-space
-shortcuts, such as pixel-coordinate correlations, rather than grounding actions
-in proprioceptive state and robot-object geometry.
-We introduce \textsc{ProprioVLA}, a self-supervised framework for
-proprioceptive grounding in VLA policies. Our key insight is that the
-end-effector provides a natural robot-kinematic anchor between visual evidence
-and proprioceptive state. A grounded policy should not merely recognize task
-objects in the scene, but should also understand where its own manipulator is
-and how its visual motion relates to the robot's underlying kinematics. To
-instill this grounding bias, \textsc{ProprioVLA} introduces two complementary
-objectives during policy fine-tuning: a visual grounding objective that
-encourages the policy to attend to the end-effector, and a proprioceptive
-reconstruction objective that requires the grounded representation to recover
-the end-effector state.
-Crucially, \textsc{ProprioVLA} obtains grounding supervision from robot
-interaction itself. Rather than relying on static gripper appearance,
-\textsc{ProprioVLA} exploits a motion-kinematic consistency principle: the true
-end-effector region is the one whose visual motion is both locally salient and
-consistent with proprioceptive change. This enables the automatic mining of
-confidence-weighted end-effector targets with uncertainty-aware filtering,
-without manual annotations, external grounding datasets, or supervision from
-stronger foundation models. Experiments on manipulation benchmarks and
-controlled camera-perturbation evaluations show that \textsc{ProprioVLA}
-improves task success and robustness over standard VLA fine-tuning, suggesting
-that proprioceptive self-grounding is a practical route toward spatially
-reliable VLA control.
+failure: lateral camera shifts induce co-directional shifts in predicted robot
+trajectories, suggesting that current VLAs may exploit image-space shortcuts,
+such as pixel-coordinate correlations, rather than grounding actions in
+proprioceptive state and robot-object geometry.
+To bridge this gap, we introduce \textsc{ProprioVLA}, a self-supervised
+learning framework that incentivizes proprioceptive grounding in VLA policies.
+\textsc{ProprioVLA} guides the policy to visually attend to the robot itself
+by conditioning visual queries on proprioceptive state, based on the key insight
+that state-aligned residual flow provides implicit supervision for
+self-grounding.
+Specifically, \textsc{ProprioVLA} first mines confidence-weighted
+self-grounding heatmaps from robot interaction by selecting residual motion that
+is salient in the image and aligned with proprioceptive change. It then
+optimizes two complementary objectives: a visual self-grounding objective that
+aligns state-conditioned attention with these heatmaps, and a proprioceptive
+reconstruction objective that ties the attended representation back to the
+robot's own state. This yields self-supervised proprioceptive grounding without
+manual annotations, external grounding datasets, or stronger foundation-model
+supervision.
+Experiments on both real-robot and simulation
+environments show that \textsc{ProprioVLA} improves task success and robustness
+over action-supervised VLA adaptation, suggesting that proprioceptive grounding
+is a practical route toward spatially reliable VLA control.
