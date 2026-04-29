@@ -1,9 +1,17 @@
-\begin{thebibliography}{4}
+\begin{thebibliography}{11}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Black et~al.(2024)Black, Brown, Driess, Esmail, Equi, Finn, Fusai,
+  Groom, Hausman, Ichter, et~al.]{black2024pi0}
+Kevin Black, Noah Brown, Danny Driess, Adnan Esmail, Michael Equi, Chelsea
+  Finn, Niccolo Fusai, Lachy Groom, Karol Hausman, Brian Ichter, et~al.
+\newblock {$\pi_0$}: A vision-language-action flow model for general robot
+  control.
+\newblock \emph{arXiv preprint arXiv:2410.24164}, 2024.
 
 \bibitem[Brohan et~al.(2022)Brohan, Brown, Carbajal, Chebotar, Dabis, Finn,
   Gopalakrishnan, Hausman, Herzog, Hsu, et~al.]{brohan2022rt1}
@@ -23,6 +31,14 @@ Anthony Brohan, Noah Brown, Justice Carbajal, Yevgen Chebotar, Xi~Chen,
 \newblock In \emph{Proceedings of The 7th Conference on Robot Learning}, volume
   229 of \emph{Proceedings of Machine Learning Research}, 2023.
 
+\bibitem[Gu et~al.(2026)Gu, Zheng, Li, Zheng, Feng, Li, Chen, Li, and
+  Ding]{gu2026vistabot}
+Songen Gu, Yuhang Zheng, Weize Li, Yupeng Zheng, Yating Feng, Xiang Li, Yilun
+  Chen, Pengfei Li, and Wenchao Ding.
+\newblock {VistaBot}: View-robust robot manipulation via spatiotemporal-aware
+  view synthesis.
+\newblock \emph{arXiv preprint arXiv:2604.21914}, 2026.
+
 \bibitem[Kim et~al.(2024)Kim, Pertsch, Karamcheti, Xiao, Balakrishna, Nair,
   Rafailov, Foster, Lam, Sanketi, et~al.]{kim2024openvla}
 Moo~Jin Kim, Karl Pertsch, Siddharth Karamcheti, Ted Xiao, Ashwin Balakrishna,
@@ -30,11 +46,47 @@ Moo~Jin Kim, Karl Pertsch, Siddharth Karamcheti, Ted Xiao, Ashwin Balakrishna,
 \newblock {OpenVLA}: An open-source vision-language-action model.
 \newblock \emph{arXiv preprint arXiv:2406.09246}, 2024.
 
+\bibitem[Lu et~al.(2026)Lu, Xia, Wu, Lu, and Hu]{lu2026gap}
+Jingxian Lu, Wenke Xia, Yuxuan Wu, Zhiwu Lu, and Di~Hu.
+\newblock When would vision-proprioception policies fail in robotic
+  manipulation?
+\newblock \emph{arXiv preprint arXiv:2602.12032}, 2026.
+
 \bibitem[{Octo Model Team} et~al.(2024){Octo Model Team}, Ghosh, Walke,
   Pertsch, Black, Mees, Dasari, Hejna, Kreiman, Xu, et~al.]{team2024octo}
 {Octo Model Team}, Dibya Ghosh, Homer Walke, Karl Pertsch, Kevin Black, Oier
   Mees, Sudeep Dasari, Joey Hejna, Tobias Kreiman, Charles Xu, et~al.
 \newblock Octo: An open-source generalist robot policy.
 \newblock \emph{arXiv preprint arXiv:2405.12213}, 2024.
+
+\bibitem[Qu et~al.(2025)Qu, Song, Chen, Yao, Ye, Ding, Wang, Gu, Zhao, Wang,
+  and Li]{qu2025spatialvla}
+Delin Qu, Haoming Song, Qizhi Chen, Yuanqi Yao, Xinyi Ye, Yan Ding, Zhigang
+  Wang, JiaYuan Gu, Bin Zhao, Dong Wang, and Xuelong Li.
+\newblock {SpatialVLA}: Exploring spatial representations for
+  visual-language-action model.
+\newblock \emph{Robotics: Science and Systems}, 2025.
+
+\bibitem[Zhang et~al.(2025)Zhang, Duan, Hao, Qiao, Dai, and
+  Hou]{zhang2025ocvla}
+Tianyi Zhang, Haonan Duan, Haoran Hao, Yu~Qiao, Jifeng Dai, and Zhi Hou.
+\newblock Grounding actions in camera space: Observation-centric
+  vision-language-action policy.
+\newblock \emph{arXiv preprint arXiv:2508.13103}, 2025.
+
+\bibitem[Zhao et~al.(2025)Zhao, Lu, Zhang, Liu, Liang, Zhang, Cao, Xie, Hu,
+  Wang, et~al.]{zhao2025statefree}
+Juntu Zhao, Wenbo Lu, Di~Zhang, Yufeng Liu, Yushen Liang, Tianluo Zhang, Yifeng
+  Cao, Junyuan Xie, Yingdong Hu, Shengjie Wang, et~al.
+\newblock Do you need proprioceptive states in visuomotor policies?
+\newblock \emph{arXiv preprint arXiv:2509.18644}, 2025.
+
+\bibitem[Zheng et~al.(2025)Zheng, Liang, Huang, Gao, Daum{\'e}~III, Kolobov,
+  Huang, and Yang]{zheng2025tracevla}
+Ruijie Zheng, Yongyuan Liang, Shuaiyi Huang, Jianfeng Gao, Hal Daum{\'e}~III,
+  Andrey Kolobov, Furong Huang, and Jianwei Yang.
+\newblock {TraceVLA}: Visual trace prompting enhances spatial-temporal
+  awareness for generalist robotic policies.
+\newblock \emph{arXiv preprint arXiv:2412.10345}, 2025.
 
 \end{thebibliography}

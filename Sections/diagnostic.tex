@@ -1,0 +1,69 @@
+\section{Does a VLA Know Where It Is?}
+
+A manipulation policy must know where it is, not only what object the language
+instruction names. We probe this self-location requirement at two levels. The
+action-level probe asks whether a predicted trajectory remains tied to the
+fixed robot-scene state when only the camera view is shifted. The
+representation-level probe asks whether robot-relevant attention localizes the
+arm, gripper, or end-effector rather than only task objects or background
+context. Together, these probes expose a \emph{missing-self} failure mode: a
+policy can appear task-grounded while lacking a stable visual grounding of the
+body that acts.
+
+\subsection{Finding 1: The Action Frame Is Entangled with the Image Frame}
+
+We diagnose action-frame grounding by perturbing the view while holding the
+physical manipulation state fixed. Given observation \(o_t\), instruction
+\(x\), proprioceptive state \(s_t\), and policy \(\pi_\theta\), let
+\(\tau_{\theta}=\pi_\theta(o_t,x,s_t)\) be the predicted trajectory from the
+original view. We then apply a lateral camera or image shift
+\(T_{\Delta v_{\mathrm{cam}}}\) and compute
+\(\tau_{\theta}'=\pi_\theta(T_{\Delta v_{\mathrm{cam}}}(o_t),x,s_t)\). The
+instruction, robot state, object configuration, and physical scene are
+unchanged; only the image frame moves.
+
+If the action frame were grounded in robot-scene geometry, the prediction would
+remain stable under this camera-only perturbation, up to the known transform
+used for visualization. A missing-self failure appears when the predicted
+end-effector displacement follows the image displacement. We quantify this
+effect after projecting the trajectory change onto a common lateral coordinate
+system:
+\[
+    \begin{aligned}
+    \mathrm{TSR}
+    &=
+    \frac{\|\Delta \tau_{\mathrm{pred}}\|_2}
+         {\|\Delta v_{\mathrm{cam}}\|_2 + \epsilon},\\
+    \mathrm{SDA}
+    &=
+    \frac{
+        \langle \Delta \tau_{\mathrm{pred}}, \Delta v_{\mathrm{cam}}\rangle
+    }{
+        \|\Delta \tau_{\mathrm{pred}}\|_2
+        \|\Delta v_{\mathrm{cam}}\|_2 + \epsilon
+    } .
+    \end{aligned}
+\]
+High TSR means the prediction changes strongly under a view-only shift; high
+SDA means the change is co-directional with the image shift. The combination
+indicates that the learned action frame is partially entangled with the image
+frame rather than fully anchored to proprioceptive state and robot-object
+geometry.
+
+\subsection{Finding 2: Task Grounding Does Not Imply Self-Grounding}
+
+We next test whether action-relevant representations localize the acting body.
+For a VLA or its vision-language backbone, we use robot-centric prompts such as
+``Where is the robot arm?'', ``Please identify the robot itself in the scene,''
+and ``Where is the manipulator?'' We then visualize attention heatmaps,
+attention rollout, Grad-CAM maps, cross-attention maps, or token relevance
+maps. The same analysis can be applied to policy tokens used for action
+prediction, comparing task relevance with self relevance.
+
+This probe separates task grounding from self-grounding. A model may attend to
+task objects, the tabletop, or salient background regions while assigning
+little relevance to the robot arm, gripper, or end-effector. Such attention can
+support object recognition and instruction following, but it does not bind the
+action to the body that will execute it. Robust VLA control therefore requires
+binding proprioceptive state to visual evidence of the acting body, rather than
+treating proprioception as a passive input that the visual pathway can ignore.

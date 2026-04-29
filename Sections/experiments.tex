@@ -1,18 +1,75 @@
 \section{Experiments}
 
-Present the experimental setup, datasets, robot tasks, baselines, metrics, and
-implementation details.
+The experiments test whether proprioceptive self-grounding improves spatial
+reliability beyond ordinary action supervision and state concatenation. The
+evaluation links three evidence types: task performance, action stability under
+camera perturbations, and visual grounding of the acting robot.
 
 \subsection{Experimental Setup}
 
-Describe environments, embodiments, sensor inputs, train/test splits, and
-evaluation protocol.
+We evaluate a VLA backbone fine-tuned on language-conditioned manipulation
+demonstrations in simulation and on a real robot. Each episode contains visual
+observations \(o_t\), proprioceptive state \(s_t\), language instruction \(x\),
+and action supervision \(a_t\). For robustness evaluation, we keep the physical
+robot-scene state, instruction, and proprioceptive state fixed, then apply
+lateral view shifts of controlled magnitude. This isolates camera-induced
+changes from changes in the underlying manipulation state.
 
-\subsection{Main Results}
+We compare four policies under the same demonstrations, action labels, and
+view-shift protocol: Base VLA, action-supervised fine-tuning, VLA with
+proprioception concatenation, and \textsc{ProprioVLA}. We report task success
+rate, action prediction error, Trajectory Shift Ratio, Shift Direction
+Agreement, and a grounding score. The grounding score is computed as either
+attention-heatmap alignment with \(H_t\) or attention mass on robot regions.
+Lower trajectory shift and direction agreement indicate a more stable action
+frame; higher grounding score indicates stronger localization of the acting
+body. Each setup reports the task suite, demonstration count, train/test split,
+camera shifts, action parameterization, proprioceptive normalization,
+optimizer, and loss weights \(\lambda_g\), \(\lambda_r\), and \(\beta\).
 
-Report the primary comparisons against baselines.
+\subsection{Simulation Experiments}
+
+Simulation provides controlled access to camera shifts, object layouts, and
+ground-truth robot geometry. We evaluate normal, mild-shift, medium-shift, and
+large-shift settings. For each setting, we report task success, action
+prediction error, Trajectory Shift Ratio, Shift Direction Agreement, and
+grounding score. Robustness curves plot these metrics against shift magnitude,
+making the co-movement between predicted actions and image shifts directly
+visible.
+
+We also evaluate held-out object layouts and camera positions. These splits
+separate memorization of a fixed training camera from grounding that transfers
+across views. Qualitative trajectory overlays compare the original prediction
+with shifted-view predictions after mapping them to the same robot-centric
+coordinate frame.
+
+\subsection{Real-World Experiments}
+
+The real-robot evaluation tests whether the same failure mode appears under
+sensor noise, calibration error, and real scene variation. We evaluate several
+manipulation tasks under the original view and shifted views, reporting task
+success, success drop under perturbation, action prediction error on logged
+demonstrations, and grounding score.
+
+For qualitative analysis, we visualize baseline attention, the mined
+state-aligned heatmap, \textsc{ProprioVLA} attention, and trajectory overlays
+for the same scene. The comparison checks whether attention remains dominated
+by task objects and background context or shifts toward the arm, gripper, and
+end-effector while the trajectory remains stable.
 
 \subsection{Ablations}
 
-Analyze the contribution of proprioceptive inputs, representation choices, and
-architecture components.
+The ablation study isolates the mechanisms that distinguish
+\textsc{ProprioVLA} from simple state conditioning. We evaluate four variants:
+(1) removing the visual self-grounding loss \(\mathcal{L}_{\mathrm{ground}}\);
+(2) removing the reconstruction loss \(\mathcal{L}_{\mathrm{rec}}\); (3) using
+raw optical flow instead of state-aligned residual motion; and (4) replacing
+the proprioceptive visual query with state concatenation. Each ablation is
+evaluated with the same success, action, trajectory-shift, and grounding
+metrics.
+
+These ablations test the central mechanism: the policy must use proprioception
+to ground visual attention and anchor the attended feature, rather than merely
+receive proprioceptive values as extra inputs. The comparison separates three
+alternatives: gains from additional state, gains from motion saliency alone,
+and gains from explicit proprioceptive self-grounding.

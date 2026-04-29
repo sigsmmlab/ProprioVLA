@@ -1,13 +1,34 @@
 \section{Related Work}
 
 \paragraph{Vision-language-action models.}
-Discuss prior work on language-conditioned robotic policies and generalist VLA
-models.
+Vision-language-action (VLA) policies scale language-conditioned robot control
+by coupling vision-language backbones with robot action prediction. RT-1 and
+RT-2 established the value of large robot datasets and web-scale semantic
+priors~\citep{brohan2022rt1,brohan2023rt2}; recent open and generalist models
+further improve transfer across tasks, embodiments, and action
+parameterizations~\citep{team2024octo,kim2024openvla,black2024pi0}.
+However, this line of work mainly optimizes task success under the training
+observation distribution. It does not directly test whether the action-relevant
+visual evidence is anchored to camera-invariant robot-object geometry.
+\textsc{ProprioVLA} studies this missing failure mode: under camera
+perturbations, a fine-tuned VLA can follow image-coordinate shortcuts instead
+of grounding actions in the robot's own state.
 
-\paragraph{Proprioception for robot learning.}
-Discuss how robot state, proprioceptive feedback, and embodiment information
-are used in visuomotor control and robot foundation models.
-
-\paragraph{Multimodal policy learning.}
-Position \textsc{ProprioVLA} relative to methods that combine visual, language,
-state, and action modalities.
+\paragraph{Spatial and proprioceptive grounding in VLA policies.}
+Recent work improves VLA perception by making space, viewpoint, or
+proprioception more explicit. TraceVLA adds visual trajectory prompts to
+increase spatial-temporal awareness~\citep{zheng2025tracevla}; SpatialVLA
+injects 3D spatial representations~\citep{qu2025spatialvla}; OC-VLA predicts
+actions in camera space to reduce observation-action mismatch~\citep{zhang2025ocvla};
+and VistaBot uses geometry-aware view synthesis for cross-view
+robustness~\citep{gu2026vistabot}. These methods show that perception is a
+central bottleneck, but they depend on explicit prompts, 3D encodings, camera
+coordinate transforms, or generative view modules. A complementary line
+questions proprioception itself: State-free Policy removes proprioceptive
+inputs to avoid trajectory overfitting~\citep{zhao2025statefree}, while GAP
+shows that proprioceptive gradients can suppress visual learning during motion
+transitions~\citep{lu2026gap}. \textsc{ProprioVLA} takes a different stance: it
+does not discard proprioception or treat it as a passive token. Instead, it
+uses proprioceptive change to mine state-aligned residual-flow heatmaps, turning
+the robot's own motion into self-supervision for visual attention and
+proprioceptive reconstruction.

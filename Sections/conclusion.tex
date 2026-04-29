@@ -1,4 +1,16 @@
 \section{Conclusion}
 
-Briefly restate the problem, the key takeaway, and the most important future
-directions.
+This paper studies a missing-self failure mode in VLA policies: under
+camera-only viewpoint shifts, predicted robot trajectories can move with the
+image frame even when the physical robot-scene state is unchanged. The
+diagnostic shows that task grounding and self-grounding are distinct
+requirements for spatially reliable manipulation.
+
+\textsc{ProprioVLA} addresses this issue through three connected mechanisms:
+state-aligned motion supervision, proprioception as a visual query, and
+proprioceptive anchoring by reconstruction. The framework mines self-grounding
+heatmaps from robot interaction without manual masks or external grounding
+datasets, uses proprioceptive state to select robot-related visual evidence,
+and requires the attended visual feature to recover the robot's own state.
+Learning to see the self is a practical step toward VLA policies whose actions
+are grounded in embodiment rather than in the image frame alone.

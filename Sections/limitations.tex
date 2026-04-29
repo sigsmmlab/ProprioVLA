@@ -1,4 +1,19 @@
 \section{Limitations}
 
-Discuss the main assumptions, failure cases, dataset or embodiment constraints,
-and practical limitations of \textsc{ProprioVLA}.
+\textsc{ProprioVLA} assumes that the robot is at least partially visible during
+training. If the embodiment is consistently outside the camera view, the
+state-aligned motion signal cannot provide useful self-grounding supervision,
+and the visual query has no direct evidence from which to recover the robot's
+own state.
+
+State-aligned residual motion can be ambiguous when non-robot motion is coupled
+to the robot. Grasped objects, deformable materials, moving backgrounds, or
+other agents may move synchronously with proprioceptive change and receive high
+alignment scores. Confidence weighting reduces weak supervision, but it cannot
+fully distinguish the robot body from every object moved by that body.
+
+Finally, the evaluation covers a finite set of embodiments, camera
+perturbations, and manipulation tasks. Broader multi-camera setups, mobile
+manipulation, multi-robot scenes, long-horizon tasks, and highly dynamic
+environments remain important tests for whether proprioceptive self-grounding
+scales beyond controlled perturbation regimes.

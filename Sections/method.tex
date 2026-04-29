@@ -1,21 +1,133 @@
-\section{Method}
+\section{\textsc{ProprioVLA}}
 
-\subsection{Overview}
+\textsc{ProprioVLA} adds a proprioceptive grounding path to a VLA policy while
+leaving the standard action-supervised objective intact. During training, the
+method mines self-grounding targets from state-aligned residual motion, uses
+proprioceptive state as a query over visual features, and anchors the queried
+visual representation by reconstructing proprioceptive information. At test
+time, only the learned state-conditioned attention path is used; the mined
+heatmaps are not required.
 
-Describe the full \textsc{ProprioVLA} pipeline and how visual, language, and
-proprioceptive inputs are represented before action generation.
+\subsection{Self-Grounding from State-Aligned Motion}
 
-\subsection{Proprioceptive Representation}
+The robot reveals itself through motion that is synchronized with its state
+change. Given consecutive observations \((o_t,o_{t+1})\) and proprioceptive
+states \((s_t,s_{t+1})\), we define
+\(\Delta s_t=s_{t+1}-s_t\). We estimate dense visual motion \(F_t(p)\) between
+frames and subtract global or background motion to obtain residual motion
+\(R_t(p)\) at image location \(p\). This residual suppresses camera drift and
+static-scene variation, emphasizing motion caused by the robot or by objects
+directly coupled to the robot.
 
-Define the proprioceptive inputs, normalization, tokenization, temporal
-aggregation, and how these signals are aligned with images and actions.
+We convert residual motion into a confidence-weighted self-grounding target.
+Let \(\mathrm{sal}(R_t(p))\) denote local residual-motion saliency and let
+\[
+    \alpha_t(p)
+    =
+    \left[
+    \cos\bigl(\psi_R(R_t(p)),\psi_s(\Delta s_t)\bigr)
+    \right]_+
+\]
+measure state-motion alignment after lightweight projections \(\psi_R\) and
+\(\psi_s\). The unnormalized heatmap score is
+\[
+    e_t(p)=\mathrm{sal}(R_t(p))\,\alpha_t(p).
+\]
+We normalize \(e_t\) over the image or patch grid to obtain \(H_t\), and set
+a confidence \(c_t\in[0,1]\) from the total aligned-motion mass. Low confidence
+downweights frames where the self-motion cue is weak or ambiguous. Thus the
+training target is mined from interaction alone, without manual masks, external
+grounding datasets, or stronger foundation-model supervision.
 
-\subsection{Policy Architecture}
+\subsection{Proprioception as a Visual Query}
 
-Describe the backbone model, multimodal fusion design, action head, and any
-training-time or inference-time modifications.
+In \textsc{ProprioVLA}, proprioception determines where the policy looks rather
+than merely adding another token to the transformer. We encode the
+proprioceptive state as
+\[
+    q_t^s=f_s(s_t),
+\]
+and obtain visual keys and values \(K_t,V_t=f_v(o_t)\) from the VLA vision
+encoder. The state query attends over visual patches according to
+\[
+    A_t
+    =
+    \mathrm{softmax}
+    \left(
+    \frac{q_t^s K_t^\top}{\sqrt{d}}
+    \right),
+    \qquad
+    z_t^{\mathrm{self}} = A_t V_t .
+\]
+Here \(A_t\) is a distribution over image patches, and
+\(z_t^{\mathrm{self}}\) is the self-grounded visual feature passed to the
+action head together with the policy's standard visual-language representation.
 
-\subsection{Training Objective}
+The mined heatmap supervises this state-conditioned attention through
+\[
+    \mathcal{L}_{\mathrm{ground}}
+    =
+    c_t\,D(A_t,H_t),
+\]
+where \(D\) is cross-entropy or KL divergence after resizing \(H_t\) to the
+attention grid. This loss turns proprioception into an active grounding
+mechanism: the state embedding selects image evidence corresponding to the
+current state. At inference time, the learned query directly produces \(A_t\)
+and \(z_t^{\mathrm{self}}\) from the current observation and state.
 
-Specify the loss functions, supervision format, data sampling strategy, and
-optimization details that are central to the method.
+\subsection{Proprioceptive Anchoring by Reconstruction}
+
+The self-grounding loss specifies where to attend, but it does not guarantee
+what the attended feature encodes. We therefore add a reconstructive
+proprioceptive anchoring objective. The reconstruction path is
+\[
+    s_t \rightarrow q_t^s \rightarrow A_t \rightarrow
+    z_t^{\mathrm{self}} \rightarrow \hat{s}_t ,
+\]
+where the attended representation is explicitly
+\[
+    z_t^{\mathrm{self}}=\sum_p A_t(p)V_t(p),
+    \qquad
+    \hat{s}_t=g_s(z_t^{\mathrm{self}}).
+\]
+The state reconstruction loss is
+\[
+    \mathcal{L}_{\mathrm{state}}
+    =
+    \|\hat{s}_t-s_t\|_2^2 .
+\]
+For paired observations, we also reconstruct state change:
+\[
+    \widehat{\Delta s_t}
+    =
+    g_\Delta(z_t^{\mathrm{self}},z_{t+1}^{\mathrm{self}}),
+    \qquad
+    \mathcal{L}_{\mathrm{motion}}
+    =
+    \|\widehat{\Delta s_t}-\Delta s_t\|_2^2 .
+\]
+The full reconstruction objective is
+\[
+    \mathcal{L}_{\mathrm{rec}}
+    =
+    \mathcal{L}_{\mathrm{state}}
+    +
+    \beta \mathcal{L}_{\mathrm{motion}},
+\]
+and the complete training loss is
+\[
+    \mathcal{L}
+    =
+    \mathcal{L}_{\mathrm{act}}
+    +
+    \lambda_g \mathcal{L}_{\mathrm{ground}}
+    +
+    \lambda_r \mathcal{L}_{\mathrm{rec}} .
+\]
+Here \(\mathcal{L}_{\mathrm{act}}\) is the standard imitation loss used to
+fine-tune the VLA. The reconstruction heads receive only
+\(z_t^{\mathrm{self}}\), never the raw state \(s_t\) or state embedding
+\(q_t^s\). This implementation detail prevents trivial copying and makes
+reconstruction a visual anchoring regularizer. The policy is therefore trained
+not only to look at the robot, but also to encode the robot's state in the
+visual feature it attends to.
