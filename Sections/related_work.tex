@@ -14,7 +14,7 @@ visual evidence is anchored to camera-invariant robot-object geometry.
 perturbations, a fine-tuned VLA can follow image-coordinate shortcuts instead
 of grounding actions in the robot's own state.
 
-\paragraph{Spatial and proprioceptive grounding in VLA policies.}
+\paragraph{Visual grounding in VLA policies.}
 Recent work improves VLA perception by making space, viewpoint, or
 proprioception more explicit. TraceVLA adds visual trajectory prompts to
 increase spatial-temporal awareness~\citep{zheng2025tracevla}; SpatialVLA
@@ -29,5 +29,5 @@ inputs to avoid trajectory overfitting~\citep{zhao2025statefree}, while GAP
 shows that proprioceptive gradients can suppress visual learning during motion
 transitions~\citep{lu2026gap}. \textsc{ProprioVLA} takes a different stance: it
 does not discard proprioception or treat it as a passive token. Instead, it
-uses proprioceptive change to mine state-aligned residual-flow heatmaps, turning
+uses proprioceptive change to mine token-level self-grounding targets, turning
 the robot's own motion into self-supervision for learned visual attention.

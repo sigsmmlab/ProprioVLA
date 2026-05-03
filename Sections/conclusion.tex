@@ -6,10 +6,10 @@ image frame even when the physical robot-scene state is unchanged. The
 diagnostic shows that task grounding and self-grounding are distinct
 requirements for spatially reliable manipulation.
 
-\textsc{ProprioVLA} addresses this issue through three connected mechanisms:
-state-aligned motion supervision, learned grounding queries, and normalized KL
-attention supervision. The framework mines self-grounding heatmaps from robot
-interaction without manual masks or external grounding datasets and uses them
-to select robot-related visual evidence during training.
+\textsc{ProprioVLA} addresses this issue through two connected components:
+State-Aligned Residual Flow (SARF) and a Proprioceptive Alignment Module (PAM).
+SARF mines token-level self-grounding targets from robot interaction without
+manual masks or external grounding datasets, and PAM trains learned grounding
+queries to recover these targets with normalized KL supervision.
 Learning to see the self is a practical step toward VLA policies whose actions
 are grounded in embodiment rather than in the image frame alone.
