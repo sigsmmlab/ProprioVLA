@@ -1,0 +1,243 @@
+\section{\textsc{ProprioVLA}}
+
+\textsc{ProprioVLA} adds a self-supervised proprioceptive grounding objective
+to a VLA policy without changing the policy's action interface. Given an
+observation \(o_t\), language instruction \(x\), proprioceptive state \(s_t\),
+and action label \(a_t\), the base VLA produces multimodal tokens and is
+trained with its standard imitation or diffusion action loss. \textsc{ProprioVLA}
+adds two training-time components: State-Aligned Residual Flow (SARF), which
+mines token-level self-grounding targets from robot interaction, and a
+Proprioceptive Alignment Module (PAM), which predicts a self-grounding
+distribution over VLA visual tokens. The pseudo-targets and grounding loss are
+used only during training; at inference, the policy consumes the same inputs as
+the base VLA.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{propriovla_main_figure_preview.png}
+    \caption{
+    Overview of \textsc{ProprioVLA}. Given an observation, instruction, and
+    proprioceptive state, the base VLA produces a standard multimodal
+    representation. State-Aligned Residual Flow (SARF) mines token-level
+    self-grounding targets from proprioceptively aligned visual change, while
+    the Proprioceptive Alignment Module (PAM) trains learned grounding queries
+    over VLA visual tokens to recover these targets. The mined target
+    distribution is used only during training.
+    }
+    \label{fig:propriovla_method}
+\end{figure}
+
+\subsection{Problem Setup and Visual Tokens}
+
+We formulate proprioceptive grounding as an auxiliary distribution-matching
+problem over the VLA visual-token grid. Let the VLA backbone return a sequence
+of hidden states \(Z_t=\{z_{t,i}\}_{i=1}^{L}\). An image-token mask selects the
+subset of tokens that originate from visual inputs, and the image-token layout
+records the spatial grid shape for each view. For the target camera view, we
+collect the valid visual tokens
+\[
+    V_t=\{v_t(p)\in\mathbb{R}^{d}\}_{p\in\mathcal{P}_t},
+\]
+where \(\mathcal{P}_t\) indexes valid spatial token locations. Each token has a
+normalized center coordinate \(u_p=(x_p,y_p)\in[0,1]^2\), computed from the
+corresponding image grid. If multiple image units are present, we group units
+by view index and apply the grounding objective to the selected view; invalid
+or missing views are ignored by the token mask.
+
+The objective is to make the VLA representation recover a distribution over
+where the acting body appears. During training, SARF provides a target
+distribution \(H_t\) over \(\mathcal{P}_t\). PAM predicts a distribution
+\(A_t\) from the VLA visual tokens. The grounding loss supervises \(A_t\) to
+match \(H_t\), while gradients flow through the same visual representation used
+by action prediction. This design separates grounding supervision from action
+execution: grounding is learned as a side objective, not as an additional
+runtime input.
+
+\subsection{State-Aligned Residual Flow}
+
+SARF mines self-grounding targets from motion that is visually salient and
+proprioceptively supported. For an episode, we first compute a scalar
+proprioceptive activity signal from end-effector translation and gripper
+change,
+\[
+    \gamma_t=\mathrm{norm}\bigl(\|\Delta r_t\|_2+\beta |\Delta g_t|\bigr),
+\]
+where \(r_t\) is the end-effector position, \(g_t\) is the gripper state,
+\(\beta\) balances gripper activity, and \(\mathrm{norm}(\cdot)\) denotes
+robust percentile normalization. High \(\gamma_t\) indicates frames where the
+robot state changes enough to make visual self-motion informative.
+
+SARF next estimates residual visual change from consecutive frames. Let
+\(I_t\) be the grayscale image at time \(t\), and let \(F_{t\rightarrow t+1}\)
+be dense optical flow between adjacent frames. We combine temporal image
+difference and optical-flow magnitude into a visual-change score
+\[
+    M_t
+    =
+    \mathcal{N}\left(
+    \frac{1}{2}\left(|I_t-I_{t-1}|+|I_{t+1}-I_t|\right)
+    +
+    \frac{1}{4}\left(\|F_{t-1\rightarrow t}\|_2+\|F_{t\rightarrow t+1}\|_2\right)
+    \right),
+\]
+where \(\mathcal{N}\) denotes map normalization followed by mild Gaussian
+smoothing. Image difference captures appearance changes, while optical flow
+captures coherent displacement. Their combination suppresses static background
+tokens and highlights image regions whose change can plausibly correspond to
+the robot or objects directly coupled to it.
+
+To reduce spurious motion from distractors, SARF fits a state-guided spatial
+prior from high-confidence motion peaks within each episode. A lightweight
+weighted regression maps proprioceptive state features to image points, using
+motion-derived confidence as weights and robust inlier support to reject
+outliers. When the fit is reliable, it predicts a prior point \(\mu_t\) and
+support score \(q_t\) for each frame. SARF combines this prior with visual
+change as
+\[
+    S_t(p)
+    =
+    \mathcal{N}\left(
+    M_t(p)^{0.85}
+    \left[(1-\rho_t)+\rho_t G(p;\mu_t,\sigma_{\mathrm{prior}})\right]
+    \right),
+\]
+where \(G\) is a Gaussian point prior and \(\rho_t\) is capped by the fitted
+model quality. If the state-guided fit is unreliable, SARF falls back to the
+pure motion score \(M_t\). This fallback keeps target mining self-supervised
+and avoids forcing a poor state-to-image fit onto ambiguous episodes.
+
+SARF converts the score map into a token-level target. We blur \(S_t\), extract
+a peak region from the high-score set, and obtain a normalized pseudo point
+\(y_t\), anisotropic scale \(\sigma_t=(\sigma^x_t,\sigma^y_t)\), bounding box
+\(B_t\), and confidence \(c_t\). The confidence is a geometric combination of
+peak sharpness, visual-change energy, proprioceptive activity, and, when
+available, state-prior support. Low-confidence frames are abstained from by
+setting \(c_t=0\) below a minimum threshold.
+
+Given token centers \(\{u_p\}_{p\in\mathcal{P}_t}\), we rasterize the mined
+pseudo point into a normalized target distribution:
+\[
+    \tilde{H}_t(p)
+    =
+    \exp\left(
+    -\frac{1}{2}
+    \left[
+    \left(\frac{u^x_p-y^x_t}{\sigma^x_t}\right)^2
+    +
+    \left(\frac{u^y_p-y^y_t}{\sigma^y_t}\right)^2
+    \right]
+    \right)
+    \mathbb{1}[u_p\in B_t],
+\]
+\[
+    H_t(p)
+    =
+    \frac{\tilde{H}_t(p)}
+    {\sum_{q\in\mathcal{P}_t}\tilde{H}_t(q)+\epsilon}.
+\]
+If the clipped box contains no valid token, we fall back to the unclipped
+Gaussian target, and if that also has no mass, to the uniform distribution over
+valid tokens. Thus SARF produces a stable token-level self-grounding target
+from interaction alone, without robot-part masks or external grounding labels.
+
+\subsection{Proprioceptive Alignment Module}
+
+PAM predicts the self-grounding distribution with a lightweight learned-query
+head over VLA visual tokens. The module maintains \(M\) trainable grounding
+latents \(Q=\{q_m\}_{m=1}^{M}\). In the main learned-query setting, these
+latents are independent parameters; a state-conditioned query variant, used for
+ablation, adds a projection of the grounding state to the same latents. Each
+visual token is augmented with a learned positional embedding of its normalized
+center coordinate \(u_p\).
+
+PAM applies a small stack of cross-attention blocks from grounding latents to
+visual tokens. For one block, with token inputs \(\hat{v}_t(p)\), the attention
+logits are
+\[
+    \ell_t(m,p)
+    =
+    \bar{q}_{m}^{\top}\bar{k}_t(p),
+    \qquad
+    \bar{q}_{m}
+    =
+    \mathrm{norm}(W_q\,\mathrm{LN}(q_m)),
+    \quad
+    \bar{k}_t(p)
+    =
+    \mathrm{norm}(W_k\,\mathrm{LN}(\hat{v}_t(p))).
+\]
+The block uses the corresponding softmax attention to update the grounding
+latents through value projection and a feed-forward layer. The final-layer
+attention logits define the predicted self-grounding distribution:
+\[
+    A_t(p)
+    =
+    \frac{1}{M}
+    \sum_{m=1}^{M}
+    \mathrm{softmax}_{q\in\mathcal{P}_t}\bigl(\ell_t(m,q)\bigr)_p .
+\]
+Averaging across latents lets several queries cover the same visible
+embodiment while still producing one distribution for supervision.
+
+PAM is intentionally a side head rather than a token-writeback module. The
+grounding branch reads VLA visual tokens and returns attention logits for
+training, but the original VLA token sequence and attention mask are passed to
+the action decoder unchanged. In the normalized-KL-only setting, state
+reconstruction and feature reconstruction auxiliaries are disabled, and the
+grounding loss acts through the attention-producing query/key pathway. This
+keeps the method faithful to the central goal: shaping shared visual tokens to
+encode visible embodiment, without adding pseudo-label-dependent inputs to the
+policy at test time.
+
+\subsection{Normalized KL Grounding Objective}
+
+The grounding objective compares the predicted distribution \(A_t\) to the
+SARF target \(H_t\) with a scale-normalized KL divergence. Let
+\[
+    \mathrm{CE}_t
+    =
+    -\sum_{p\in\mathcal{P}_t} H_t(p)\log A_t(p),
+    \qquad
+    \mathcal{H}(H_t)
+    =
+    -\sum_{p\in\mathcal{P}_t}H_t(p)\log H_t(p).
+\]
+The KL from target to model is
+\(\mathrm{CE}_t-\mathcal{H}(H_t)\). Because its magnitude depends on token
+count and target sharpness, we normalize it by the KL from the target to
+uniform attention:
+\[
+    \kappa_t
+    =
+    \frac{
+    \mathrm{CE}_t-\mathcal{H}(H_t)
+    }{
+    \log|\mathcal{P}_t|-\mathcal{H}(H_t)+\epsilon
+    } .
+\]
+With this normalization, a target-matching prediction approaches zero, while
+uniform attention is approximately one. This makes the auxiliary loss stable
+across different image-token counts, pseudo-box sizes, and target sharpness.
+
+The complete normalized-KL-only training objective is
+\[
+    \mathcal{L}
+    =
+    \mathcal{L}_{\mathrm{act}}
+    +
+    \lambda_g
+    \frac{
+    \sum_t \mathbb{1}[c_t\ge c_{\min}]
+    c_t \kappa_t
+    }{
+    \sum_t \mathbb{1}[c_t\ge c_{\min}]c_t+\epsilon
+    } .
+\]
+\(\mathcal{L}_{\mathrm{act}}\) is the original VLA action loss. The
+implementation keeps \(\mathcal{L}_{\mathrm{act}}\) active in all grounding
+modes; in normalized-KL-only mode, it forces the localization auxiliary to use
+normalized KL and sets the state-reconstruction and feature-reconstruction
+weights to zero. Since normalized KL is already calibrated against the uniform
+baseline, it is not further rescaled by action-loss balancing. The result is a
+training signal that teaches visual self-grounding while preserving the
+standard VLA inference path.
