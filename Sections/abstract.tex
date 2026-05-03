@@ -6,20 +6,19 @@ trajectories, suggesting that current VLAs may exploit image-space shortcuts,
 such as pixel-coordinate correlations, rather than grounding actions in
 proprioceptive state and robot-object geometry.
 To bridge this gap, we introduce \textsc{ProprioVLA}, a self-supervised
-learning framework that incentivizes proprioceptive grounding in VLA policies.
+learning framework that incentivizes self-grounding in VLA policies.
 \textsc{ProprioVLA} guides the policy to visually attend to the robot itself
-by conditioning visual queries on proprioceptive state, based on the key insight
-that \textit{state-aligned residual flow provides implicit supervision for
+with learned grounding queries, based on the key insight that
+\textit{state-aligned residual flow provides implicit supervision for
 self-grounding}.
 Specifically, \textsc{ProprioVLA} first mines confidence-weighted
 self-grounding heatmaps from robot interaction by selecting residual motion that
-is salient in the image and aligned with proprioceptive change. It then
-optimizes two complementary objectives: a visual self-grounding objective that
-aligns state-conditioned attention with these heatmaps, and a proprioceptive
-reconstruction objective that ties the attended representation back to the
-robot's own state. This yields self-supervised proprioceptive grounding without
-manual annotations, external grounding datasets, or stronger foundation-model
-supervision.
+is salient in the image and aligned with proprioceptive change. It then trains
+the learned-query attention with a confidence-weighted normalized KL objective,
+matching the attention distribution to these heatmaps while retaining the
+standard action-supervised VLA objective. This yields self-supervised
+proprioceptive grounding without manual annotations, external grounding
+datasets, or stronger foundation-model supervision.
 Extensive experiments on both real-robot and simulation
 environments show that \textsc{ProprioVLA} improves task success and robustness
 over action-supervised VLA adaptation, suggesting that proprioceptive grounding

@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1777544176.14886 "main.aux" "main.bbl" "main" 1777795029.5921 0
+["bibtex main"] 1777799705.36915 "main.aux" "main.bbl" "main" 1777799706.03416 0
   "./references.bib" 1777375962.90778 6548 715e9d0c3a9437f34d2c7af9ebc514dc ""
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1772380719 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "main.aux" 1777795029.47593 5678 f1955cdaf34766f5ec335d00479d2a0b "pdflatex"
+  "main.aux" 1777799705.9133 5540 c7941b43e0782232e762ca680ae3efd6 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1777795029.05873 "main.tex" "main.pdf" "main" 1777795029.59224 2
+["pdflatex"] 1777799705.41475 "main.tex" "main.pdf" "main" 1777799706.03425 0
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/enc/dvips/base/8r.enc" 1772380719 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1772380719 2971 def0b6c1f0b107b3b936def894055589 ""
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/map/fontname/texfonts.map" 1772380719 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -122,22 +122,22 @@
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/tex/latex/xcolor/xcolor.sty" 1772380719 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/web2c/texmf.cnf" 1772380719 43633 14bbc273cebd985e64ab1a698333eaf9 ""
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-var/web2c/pdftex/pdflatex.fmt" 1772380719 3636956 5168b884cb430e6a6336cfea08fa659a ""
-  "Sections/abstract.tex" 1777795028.33265 1810 82b62b182f10e21bdee113971a8c4aeb ""
+  "Sections/abstract.tex" 1777799564.10944 1729 c447fababb595529d1cec0939f04e117 ""
   "Sections/appendix.tex" 1777115344 154 7cac34640f7e521371094c696afb1959 ""
   "Sections/checklist.tex" 1777115320 26167 b3450429513a86f46735450d0288b722 ""
-  "Sections/conclusion.tex" 1777463649.02792 959 2b87566502500730a4d0fa2dee7efba9 ""
+  "Sections/conclusion.tex" 1777799641.85177 873 02a929bb5c2144d7779b31084556e1e2 ""
   "Sections/diagnostic.tex" 1777463649.02375 3558 a7f0408d358dd371bcbdcf2b3d1b7a12 ""
-  "Sections/experiments.tex" 1777463691.45409 4189 cf303131610a2a20996507e3e97677ac ""
-  "Sections/introduction.tex" 1777544196.09743 5306 153cfb2316286ffa0c67af5183d8a5ef ""
+  "Sections/experiments.tex" 1777799641.85037 4140 f97e104000806ee18cb4170e60834185 ""
+  "Sections/introduction.tex" 1777799683.85603 5074 7c7ec915aadd593df9df412a90d89a43 ""
   "Sections/limitations.tex" 1777463649.02754 1071 c6e210e03ff37c5b81b2d8590a516a27 ""
-  "Sections/method.tex" 1777540583.37757 5465 3e1406caa4b32f1a1562cc3720d9791b ""
-  "Sections/related_work.tex" 1777463965.54778 2225 d92252b00d2e4e6e2b3f7a0e5844fa0a ""
-  "main.aux" 1777795029.47593 5678 f1955cdaf34766f5ec335d00479d2a0b "pdflatex"
-  "main.bbl" 1777544176.18865 4587 5f3cde343cac9b1b63b2f47169f38c5e "bibtex main"
-  "main.out" 1777795029.47645 3113 79b3b0ef8bf2c5b2ddb9dceb4bf82b44 "pdflatex"
+  "Sections/method.tex" 1777799683.85706 4006 12e7c0b321e4819ee2f4c57f1da63609 ""
+  "Sections/related_work.tex" 1777799641.85116 2199 91e8343e43b170975e1341db6dcc3176 ""
+  "figures/propriovla_main_figure_preview.png" 1777715958.9281 463247 420f39dcbe8584fe2bb08bea7ccfe534 ""
+  "main.aux" 1777799705.9133 5540 c7941b43e0782232e762ca680ae3efd6 "pdflatex"
+  "main.bbl" 1777799705.41327 4587 5f3cde343cac9b1b63b2f47169f38c5e "bibtex main"
+  "main.out" 1777799705.91375 3075 86688beb3f87155c1b73ed6a9c50aa81 "pdflatex"
   "main.tex" 1777463302.41587 1203 03b31f2a32129f47b8852041bcb505d5 ""
   "neurips_2026.sty" 1773752160 13462 818d80447f57703e59b8270885421e82 ""
-  "propriovla_method.pdf" 0 -1 0 ""
   (generated)
   "main.aux"
   "main.log"

@@ -36,23 +36,20 @@ and visual evidence of the robot itself.
 self-supervised proprioceptive grounding from robot interaction. The key
 insight is that the robot reveals itself through visual motion synchronized
 with changes in proprioceptive state. Rather than using proprioception as a
-passive input token, \textsc{ProprioVLA} uses proprioceptive state to query
-visual features and derives visual supervision from state-aligned residual
-flow. This signal highlights residual motion that is
-both locally salient in the image and aligned with proprioceptive change,
+passive input token, \textsc{ProprioVLA} uses proprioceptive change to derive
+visual supervision from state-aligned residual flow and uses this supervision
+to train learned grounding queries. This signal highlights residual motion that
+is both locally salient in the image and aligned with proprioceptive change,
 indicating where the robot's own visual evidence appears during interaction.
 
 The method realizes this idea through confidence-weighted self-grounding
-heatmaps and two complementary objectives. First, \textsc{ProprioVLA} mines
-heatmaps from robot interaction by selecting residual motion that is salient in
-the image and aligned with proprioceptive change, while downweighting uncertain
-frames. These heatmaps supervise a visual self-grounding objective that aligns
-state-conditioned attention with robot-related visual evidence. Second, a
-proprioceptive reconstruction objective requires the attended visual
-representation to recover the robot's own state, preventing self-grounding from
-collapsing into a purely spatial attention cue. Together, these objectives
-provide proprioceptive grounding without manual masks, external grounding
-datasets, or supervision from stronger foundation models.
+heatmaps and a normalized KL grounding objective. First, \textsc{ProprioVLA}
+mines heatmaps from robot interaction by selecting residual motion that is
+salient in the image and aligned with proprioceptive change, while downweighting
+uncertain frames. These heatmaps supervise a lightweight learned-query adapter
+over visual tokens, encouraging the policy representation to localize the
+visible robot body without manual masks, external grounding datasets, or
+supervision from stronger foundation models.
 
 Experiments test whether proprioceptive self-grounding improves spatial
 reliability beyond ordinary action supervision and state concatenation. We
@@ -60,9 +57,9 @@ evaluate \textsc{ProprioVLA} in real-robot and simulation environments,
 including controlled camera-perturbation settings that directly probe view
 robustness. Across these evaluations, \textsc{ProprioVLA} improves task success
 and robustness over action-supervised VLA adaptation. Ablations further support
-the role of both components: state-aligned heatmaps provide spatial supervision
-for proprioceptive visual queries, while reconstruction anchors the attended
-representation to the robot state. These results suggest that self-supervised
+the role of the learned-query grounding path: state-aligned heatmaps provide
+spatial supervision, and normalized KL supervision stabilizes attention
+learning across target scales. These results suggest that self-supervised
 proprioceptive grounding is a practical route toward spatially reliable VLA
 control.
 
@@ -77,7 +74,7 @@ Our contributions are:
     from robot interaction without manual annotations, external grounding
     datasets, or stronger foundation-model supervision.
     \item We propose \textsc{ProprioVLA}, a self-supervised learning framework
-    that couples state-conditioned visual attention with proprioceptive
-    reconstruction to improve task success and robustness in real-robot and
-    simulation environments.
+    that trains learned grounding queries with normalized KL supervision to
+    improve task success and robustness in real-robot and simulation
+    environments.
 \end{itemize}

@@ -25,7 +25,7 @@ Lower trajectory shift and direction agreement indicate a more stable action
 frame; higher grounding score indicates stronger localization of the acting
 body. Each setup reports the task suite, demonstration count, train/test split,
 camera shifts, action parameterization, proprioceptive normalization,
-optimizer, and loss weights \(\lambda_g\), \(\lambda_r\), and \(\beta\).
+optimizer, and the grounding loss weight \(\lambda_g\).
 
 \subsection{Simulation Experiments}
 
@@ -62,14 +62,14 @@ end-effector while the trajectory remains stable.
 The ablation study isolates the mechanisms that distinguish
 \textsc{ProprioVLA} from simple state conditioning. We evaluate four variants:
 (1) removing the visual self-grounding loss \(\mathcal{L}_{\mathrm{ground}}\);
-(2) removing the reconstruction loss \(\mathcal{L}_{\mathrm{rec}}\); (3) using
+(2) replacing normalized KL with an unnormalized localization loss; (3) using
 raw optical flow instead of state-aligned residual motion; and (4) replacing
-the proprioceptive visual query with state concatenation. Each ablation is
+the learned grounding queries with state-derived queries. Each ablation is
 evaluated with the same success, action, trajectory-shift, and grounding
 metrics.
 
 These ablations test the central mechanism: the policy must use proprioception
-to ground visual attention and anchor the attended feature, rather than merely
-receive proprioceptive values as extra inputs. The comparison separates three
+to mine visual self-grounding targets, rather than merely receive
+proprioceptive values as extra inputs. The comparison separates three
 alternatives: gains from additional state, gains from motion saliency alone,
-and gains from explicit proprioceptive self-grounding.
+and gains from learned-query self-grounding.
