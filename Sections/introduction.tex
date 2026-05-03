@@ -1,60 +1,72 @@
 \section{Introduction}
 
-Vision-language-action (VLA) policies aim to map language instructions and
-visual observations to robot actions, making them a promising interface for
-generalist manipulation. Recent robot foundation models show that broad
-pretraining and large robot datasets can yield policies that transfer across
-tasks and embodiments~\citep{brohan2022rt1,brohan2023rt2,team2024octo,kim2024openvla}.
-For manipulation, however, success depends on more than recognizing objects in
-the image: the policy must relate visual evidence to the robot's own
-proprioceptive state and to the geometry of the surrounding scene. Spatial
-robustness under changes in visual perspective is therefore a core requirement
-for reliable VLA control.
+Vision-language-action (VLA) policies make language-conditioned robot
+manipulation increasingly general, but reliable control requires spatial
+grounding in the robot's own embodiment. Recent robot foundation models show
+that broad pretraining and large robot datasets can yield policies that transfer
+across tasks and embodiments~\citep{brohan2022rt1,brohan2023rt2,team2024octo,kim2024openvla}.
+For manipulation, however, recognizing the instructed object is not sufficient:
+the policy must relate visual evidence to the robot's proprioceptive state and
+to the geometry of the surrounding scene. Spatial robustness under changes in
+visual perspective is therefore a core requirement for dependable VLA control.
 
-Despite this progress, we find that fine-tuned VLA policies can remain weakly
-grounded in their own embodiment. In controlled camera-perturbation evaluations
-where the underlying robot-scene state is unchanged, lateral camera shifts
-induce co-directional shifts in predicted robot trajectories. This systematic
-failure suggests that current VLAs may exploit image-space shortcuts, such as
-pixel-coordinate correlations, rather than grounding actions in proprioceptive
-state and robot-object geometry. Such shortcuts are especially problematic
-during fine-tuning, where a policy may match demonstrations under a fixed camera
-distribution while remaining brittle when the same physical state is viewed
-from a different perspective.
+A key unresolved failure mode is that a VLA policy can be task-grounded without
+being self-grounded. In controlled camera-perturbation evaluations where the
+underlying robot-scene state is unchanged, lateral camera shifts induce
+co-directional shifts in predicted robot trajectories. This systematic behavior
+suggests that current VLAs may exploit image-space shortcuts, such as
+pixel-coordinate correlations, instead of anchoring actions to proprioceptive
+state and robot-object geometry. A policy trained only to match demonstrations
+under a fixed observation distribution can therefore appear competent while
+remaining brittle when the same physical state is viewed from a different
+perspective.
 
-To address this issue, we introduce \textsc{ProprioVLA}, a self-supervised
-learning framework for proprioceptive grounding in VLA policies. The central
-idea is to guide the policy to visually attend to the robot itself by
-conditioning visual queries on proprioceptive state. Rather than treating the
-state as the supervision signal, \textsc{ProprioVLA} uses state as a guiding
-input and obtains supervision from state-aligned residual flow. This signal
-captures residual visual motion that is both locally salient in the image and
-synchronized with proprioceptive change, revealing where the robot's own visual
-evidence appears during interaction.
+Existing grounding-oriented VLA methods show that perception, attention
+allocation, and embodiment cues must be treated as first-class control
+problems. Recent methods improve spatial awareness with visual trajectory
+prompts, 3D representations, camera-space action formulations, view synthesis,
+or explicit treatments of proprioception~\citep{zheng2025tracevla,qu2025spatialvla,zhang2025ocvla,gu2026vistabot,zhao2025statefree,lu2026gap}.
+These approaches are valuable, but they do not directly provide a
+self-supervised signal that tells the policy where its own acting body appears
+in the image. For spatially reliable manipulation, the missing cue is not only
+object grounding or view robustness, but a binding between proprioceptive state
+and visual evidence of the robot itself.
 
-\textsc{ProprioVLA} turns this signal into confidence-weighted self-grounding
-heatmaps and uses them to train two complementary objectives. The heatmaps are
-mined from robot interaction by selecting residual motion that is salient in the
-image and aligned with proprioceptive change, abstaining from supervision when
-the signal is uncertain. They supervise a visual self-grounding objective that
-aligns state-conditioned attention with robot-related visual evidence. A
-complementary proprioceptive reconstruction objective requires the attended
-representation to recover the robot's own state, encouraging the grounded
-visual representation to remain tied to proprioception. Together, these
-objectives incentivize proprioceptive grounding without manual annotations,
-external grounding datasets, or supervision from stronger foundation models.
+\textsc{ProprioVLA} addresses this missing-self problem by learning
+self-supervised proprioceptive grounding from robot interaction. The key
+insight is that the robot reveals itself through visual motion synchronized
+with changes in proprioceptive state. Rather than using proprioception as a
+passive input token, \textsc{ProprioVLA} uses proprioceptive state to query
+visual features and derives visual supervision from state-aligned residual
+flow. This signal highlights residual motion that is
+both locally salient in the image and aligned with proprioceptive change,
+indicating where the robot's own visual evidence appears during interaction.
 
-We evaluate \textsc{ProprioVLA} in both real-robot and simulation environments,
-including controlled camera-perturbation settings that directly test spatial
+The method realizes this idea through confidence-weighted self-grounding
+heatmaps and two complementary objectives. First, \textsc{ProprioVLA} mines
+heatmaps from robot interaction by selecting residual motion that is salient in
+the image and aligned with proprioceptive change, while downweighting uncertain
+frames. These heatmaps supervise a visual self-grounding objective that aligns
+state-conditioned attention with robot-related visual evidence. Second, a
+proprioceptive reconstruction objective requires the attended visual
+representation to recover the robot's own state, preventing self-grounding from
+collapsing into a purely spatial attention cue. Together, these objectives
+provide proprioceptive grounding without manual masks, external grounding
+datasets, or supervision from stronger foundation models.
+
+Experiments test whether proprioceptive self-grounding improves spatial
+reliability beyond ordinary action supervision and state concatenation. We
+evaluate \textsc{ProprioVLA} in real-robot and simulation environments,
+including controlled camera-perturbation settings that directly probe view
 robustness. Across these evaluations, \textsc{ProprioVLA} improves task success
 and robustness over action-supervised VLA adaptation. Ablations further support
-the role of both components: self-grounding heatmaps provide spatial supervision
-for state-conditioned attention, while proprioceptive reconstruction anchors the
-attended representation to the robot state. These results suggest that
-self-supervised proprioceptive grounding is a practical route toward spatially
-reliable VLA control.
+the role of both components: state-aligned heatmaps provide spatial supervision
+for proprioceptive visual queries, while reconstruction anchors the attended
+representation to the robot state. These results suggest that self-supervised
+proprioceptive grounding is a practical route toward spatially reliable VLA
+control.
 
-Our contributions are threefold:
+Our contributions are:
 \begin{itemize}
     \item We identify a systematic grounding failure in VLA policies: camera
     shifts can induce co-directional shifts in predicted robot trajectories,
@@ -64,7 +76,7 @@ Our contributions are threefold:
     signal for self-grounding, enabling confidence-weighted heatmaps to be mined
     from robot interaction without manual annotations, external grounding
     datasets, or stronger foundation-model supervision.
-    \item We propose \textsc{ProprioVLA}, a self-supervised training framework
+    \item We propose \textsc{ProprioVLA}, a self-supervised learning framework
     that couples state-conditioned visual attention with proprioceptive
     reconstruction to improve task success and robustness in real-robot and
     simulation environments.

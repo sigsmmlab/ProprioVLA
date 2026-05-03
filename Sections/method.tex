@@ -8,6 +8,20 @@ visual representation by reconstructing proprioceptive information. At test
 time, only the learned state-conditioned attention path is used; the mined
 heatmaps are not required.
 
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{propriovla_method.pdf}
+    \caption{
+    Overview of \textsc{ProprioVLA}. Given an observation, instruction, and
+    proprioceptive state, the base VLA produces a standard multimodal
+    representation. \textsc{ProprioVLA} uses proprioception as a condition for
+    a lightweight self-grounding adapter, producing a self-grounded visual
+    embedding that is fused back into the VLA representation before the action
+    head. The heatmap supervision is used only during training.
+    }
+    \label{fig:propriovla_method}
+\end{figure}
+
 \subsection{Self-Grounding from State-Aligned Motion}
 
 The robot reveals itself through motion that is synchronized with its state
