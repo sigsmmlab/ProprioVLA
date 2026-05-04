@@ -1,47 +1,46 @@
 \section{Introduction}
 
 Vision-language-action (VLA) policies are becoming a promising route toward
-general-purpose robot manipulation. By scaling visual-language pretraining and
+general-purpose robot manipulation. By scaling vision-language pretraining and
 robot demonstrations, recent robot foundation models can follow language
 instructions and transfer across tasks and embodiments~\citep{brohan2022rt1,
 brohan2023rt2,team2024octo,kim2024openvla}. Yet spatially reliable control
-requires a capability that is easy to overlook: the policy must ground the
-action not only to the instructed object, but also to the body that executes
-the action. We refer to this capability as \emph{self-grounding}, the binding
-between proprioceptive state and visual evidence of the robot's own gripper or
-end-effector.
+requires more than recognizing the instructed object: the policy must also know
+where its own body is in the image. We refer to this capability as
+\emph{visual self-grounding}, the binding between proprioceptive state and
+visual evidence of the robot's own arm, gripper, or end-effector.
 
-We make this missing requirement concrete with two diagnostic findings. First,
-when the physical robot-scene state is fixed and only the camera viewpoint is
-laterally shifted, VLA-predicted trajectories shift in the same image
-direction. Second, even robot-centric prompts such as ``Where is the robot
-itself?'' often produce attention maps that fail to localize the gripper or
-end-effector. Together, these findings reveal that task grounding does not
-imply self-grounding: a policy may identify the instructed object while failing
-to anchor its action prediction to the visible body that will execute it.
+We motivate visual self-grounding with a two-stage diagnostic. At the behavior
+level, we laterally shift the wrist-camera view while keeping the physical
+robot-scene state, language instruction, proprioception, and ground-truth
+action fixed. A spatially grounded policy should keep the same robot-centric
+action, but current VLAs can produce trajectories that shift in the same
+direction as the image. This co-directional drift suggests that VLA control can
+rely on image-space shortcuts, such as pixel coordinates, camera correlations,
+or object-location priors, rather than stable robot-scene geometry.
 
-This failure suggests that the action frame learned by current VLA adaptation
-can remain entangled with the image frame. Standard imitation or diffusion
-action losses reward correct trajectories under the training observation
-distribution, but they do not require the visual representation to encode where
-the robot appears. Proprioception may be available as an input, yet it can act
-as a separate state cue while visual tokens exploit pixel-coordinate shortcuts,
-camera-specific correlations, or object-location priors. Such policies can
-therefore appear competent in-distribution while exhibiting co-directional
-trajectory drift under camera-only perturbations.
+We then probe the model-level source of this shortcut behavior. In both
+simulation and real-robot scenes, robot-centric prompts such as ``Where is the
+robot itself?'' often produce attention or token-relevance maps that fail to
+localize the visible gripper or end-effector. This suggests that the policy may
+identify the instructed object without visually grounding the body that will
+execute the action. We therefore attribute the image-space shortcut to missing
+visual self-grounding: action supervision can reward correct trajectories under
+the training camera without requiring visual tokens to encode where the robot
+appears.
 
 Recent spatial and grounding-oriented VLA methods make important progress, but
-they do not directly provide a self-supervised signal for self-grounding.
-Existing approaches improve spatial reasoning through visual trajectory
-prompts, 3D representations, camera-space action formulations, view synthesis,
-or explicit treatments of proprioception~\citep{zheng2025tracevla,
+they do not directly provide a self-supervised signal for visual
+self-grounding. Existing approaches improve spatial reasoning through visual
+trajectory prompts, 3D representations, camera-space action formulations, view
+synthesis, or explicit treatments of proprioception~\citep{zheng2025tracevla,
 qu2025spatialvla,zhang2025ocvla,gu2026vistabot,zhao2025statefree,
 lu2026gap}. These methods make task space, viewpoint, or state more explicit,
 yet they primarily supervise task execution rather than the visual binding
 between proprioceptive change and the acting body. What is missing is a
-training signal that tells the VLA where its own visible embodiment is, without
-manual robot-part masks, external grounding datasets, or stronger teacher
-models.
+training signal that tells the VLA where its own visible embodiment is,
+without manual robot-part masks, external grounding datasets, or stronger
+teacher models.
 
 \textsc{ProprioVLA} addresses this gap by turning robot interaction itself
 into self-grounding supervision. The key observation is that visual change from
@@ -49,10 +48,9 @@ the acting body is synchronized with proprioceptive change. Temporal image
 differences and optical flow capture residual visual change, while
 proprioceptive changes indicate when that change should correspond to the robot
 body rather than unrelated background motion. By aligning these two sources,
-\textsc{ProprioVLA} constructs
-confidence-weighted token-level self-grounding targets over the visual-token
-grid using only observations and states already present in robot
-demonstrations.
+\textsc{ProprioVLA} constructs confidence-weighted token-level self-grounding
+targets over the visual-token grid using only observations and states already
+present in robot demonstrations.
 
 Building on these targets, \textsc{ProprioVLA} trains a lightweight
 learned-query grounding head over the VLA visual representation. The head reads
@@ -67,17 +65,14 @@ action-supervised VLA objective.
 We evaluate \textsc{ProprioVLA} in simulation and real-robot manipulation,
 including controlled camera-perturbation probes that isolate view-induced
 action drift. Across settings, \textsc{ProprioVLA} improves task success and
-robustness over action-supervised VLA adaptation. Ablations further show that
-state-aligned target mining outperforms raw motion saliency alone, and that
-normalized KL provides a stable distribution-matching objective across visual
-token counts and target sharpness.
+robustness over action-supervised VLA adaptation.
 
 Our contributions are:
 \begin{itemize}
     \item We identify a missing-self failure mode in VLA policies: camera-only
-    viewpoint shifts can induce co-directional shifts in predicted robot
-    trajectories, while robot-centric prompting can still fail to localize the
-    gripper or end-effector.
+    viewpoint shifts expose image-space shortcuts in control, and model-level
+    visual probes attribute this behavior to missing visual self-grounding of
+    the gripper or end-effector.
     \item We introduce State-Aligned Residual Flow (SARF), which turns
     proprioceptively aligned optical-flow and image-difference cues into
     confidence-weighted token-level self-grounding targets without manual

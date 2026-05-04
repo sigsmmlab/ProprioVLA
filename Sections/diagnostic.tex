@@ -1,69 +1,65 @@
 \section{Does a VLA Know Where It Is?}
 
-A manipulation policy must know where it is, not only what object the language
-instruction names. We probe this self-location requirement at two levels. The
-action-level probe asks whether a predicted trajectory remains tied to the
-fixed robot-scene state when only the camera view is shifted. The
-representation-level probe asks whether robot-relevant attention localizes the
-arm, gripper, or end-effector rather than only task objects or background
-context. Together, these probes expose a \emph{missing-self} failure mode: a
-policy can appear task-grounded while lacking a stable visual grounding of the
-body that acts.
+A VLA can recognize the task object while still failing to locate the body that
+will act on it. We diagnose this missing-self failure with a two-stage probe.
+First, we expose a behavioral symptom: when the physical manipulation state is
+unchanged but the wrist-camera view is shifted, the predicted action can shift
+with the image. Second, we inspect the model's visual reasoning and find that
+robot-centric queries do not reliably localize the robot body itself. Together,
+these probes suggest that image-space shortcuts arise because current VLAs can
+lack visual self-grounding.
 
-\subsection{Finding 1: The Action Frame Is Entangled with the Image Frame}
+\subsection{VLAs Can Rely on Image-Space Shortcuts}
 
-We diagnose action-frame grounding by perturbing the view while holding the
-physical manipulation state fixed. Given observation \(o_t\), instruction
-\(x\), proprioceptive state \(s_t\), and policy \(\pi_\theta\), let
-\(\tau_{\theta}=\pi_\theta(o_t,x,s_t)\) be the predicted trajectory from the
-original view. We then apply a lateral camera or image shift
-\(T_{\Delta v_{\mathrm{cam}}}\) and compute
-\(\tau_{\theta}'=\pi_\theta(T_{\Delta v_{\mathrm{cam}}}(o_t),x,s_t)\). The
-instruction, robot state, object configuration, and physical scene are
-unchanged; only the image frame moves.
+We first isolate whether the predicted action is anchored to the physical
+robot-scene state or to the image frame. The robot proprioception, object
+configuration, language instruction, and ground-truth action are held fixed,
+while the wrist-camera view is laterally shifted to the left or to the right.
+This perturbation changes where the scene appears in the image, but it does
+not change the correct robot-centric action.
 
-If the action frame were grounded in robot-scene geometry, the prediction would
-remain stable under this camera-only perturbation, up to the known transform
-used for visualization. A missing-self failure appears when the predicted
-end-effector displacement follows the image displacement. We quantify this
-effect after projecting the trajectory change onto a common lateral coordinate
-system:
-\[
-    \begin{aligned}
-    \mathrm{TSR}
-    &=
-    \frac{\|\Delta \tau_{\mathrm{pred}}\|_2}
-         {\|\Delta v_{\mathrm{cam}}\|_2 + \epsilon},\\
-    \mathrm{SDA}
-    &=
-    \frac{
-        \langle \Delta \tau_{\mathrm{pred}}, \Delta v_{\mathrm{cam}}\rangle
-    }{
-        \|\Delta \tau_{\mathrm{pred}}\|_2
-        \|\Delta v_{\mathrm{cam}}\|_2 + \epsilon
-    } .
-    \end{aligned}
-\]
-High TSR means the prediction changes strongly under a view-only shift; high
-SDA means the change is co-directional with the image shift. The combination
-indicates that the learned action frame is partially entangled with the image
-frame rather than fully anchored to proprioceptive state and robot-object
+A spatially grounded policy should remain stable under this view-only
+perturbation. Instead, we observe co-directional action drift: left-shifted
+views induce left-biased trajectories, and right-shifted views induce
+right-biased trajectories relative to the ground truth. This drift
+substantially reduces task success, indicating that the policy can complete
+training-view tasks without fully anchoring action prediction to robot-scene
 geometry.
 
-\subsection{Finding 2: Task Grounding Does Not Imply Self-Grounding}
+This behavior reveals an image-space shortcut. The policy can partially tie
+control to pixel coordinates, camera-specific correlations, or object-location
+priors learned from the training view. Under the original camera, these cues
+can be predictive enough to support imitation. Under a lateral camera shift,
+however, the same cues move in image space while the correct action remains
+fixed, causing the action prediction to move with the view. We quantify this
+effect with Trajectory Shift Ratio (TSR), which measures the magnitude of
+prediction drift, and Shift Direction Agreement (SDA), which measures whether
+the drift follows the image shift.
 
-We next test whether action-relevant representations localize the acting body.
-For a VLA or its vision-language backbone, we use robot-centric prompts such as
-``Where is the robot arm?'', ``Please identify the robot itself in the scene,''
-and ``Where is the manipulator?'' We then visualize attention heatmaps,
-attention rollout, Grad-CAM maps, cross-attention maps, or token relevance
-maps. The same analysis can be applied to policy tokens used for action
-prediction, comparing task relevance with self relevance.
+\subsection{The Missing Self-Grounding in VLAs}
 
-This probe separates task grounding from self-grounding. A model may attend to
-task objects, the tabletop, or salient background regions while assigning
-little relevance to the robot arm, gripper, or end-effector. Such attention can
-support object recognition and instruction following, but it does not bind the
-action to the body that will execute it. Robust VLA control therefore requires
-binding proprioceptive state to visual evidence of the acting body, rather than
-treating proprioception as a passive input that the visual pathway can ignore.
+We next ask why image-space shortcuts remain available by probing whether the
+model visually grounds the robot itself. In both simulation and real-robot
+scenes, we query the VLM or VLA backbone with robot-centric prompts such as
+``Where is the robot itself?'' and visualize the resulting attention or token
+relevance maps. The prompt is only a diagnostic tool: because it explicitly
+names the robot, a visually self-grounded model should assign high relevance
+to the visible arm, gripper, or end-effector.
+
+The attention maps often fail to concentrate on the robot body. Instead, they
+assign relevance to task objects, tabletop regions, or other visually salient
+context, even when the robot is clearly visible. This indicates that task
+grounding and self-grounding are not the same capability. A VLA may identify
+the instructed object and still fail to represent where the acting body appears
+in the image.
+
+This model-level probe supports our attribution of the behavioral failure.
+Attention maps do not fully explain the policy's internal computation, but
+they provide consistent evidence that current VLAs can lack visual
+self-grounding. When the visual pathway does not encode where the robot body
+appears, the policy can satisfy action supervision through image-space
+correlations under the training camera. Those correlations then become brittle
+shortcuts under lateral viewpoint shifts. Robust VLA control therefore needs a
+training signal that binds proprioceptive state to visual evidence of the
+robot body, rather than assuming that self-grounding emerges from language and
+action supervision alone.

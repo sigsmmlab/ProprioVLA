@@ -5,14 +5,15 @@ trajectories, suggesting that current VLAs may exploit image-space shortcuts,
 such as pixel-coordinate correlations, rather than grounding actions in
 proprioceptive state and robot-object geometry.
 To bridge this gap, we introduce \textsc{ProprioVLA}, a self-supervised
-alignment approach that incentivizes self-grounding capability in VLA policies.
-\textsc{ProprioVLA} implicitly encourages the policy to localize its own
+alignment approach to incentivize self-grounding capability in VLA policies.
+\textsc{ProprioVLA} guides the policy to localize its own
 embodiment by aligning learned grounding queries with state-aligned residual
 flow targets mined from robot interaction.
 Specifically, \textsc{ProprioVLA} turns proprioceptively aligned visual change,
 captured by optical flow and image difference, into token-level self-grounding
-targets. It then trains a lightweight learned-query head over visual tokens in
-the VLA representation to recover these targets with normalized KL supervision,
+targets. It then trains a lightweight learned-query head over image-token
+embeddings extracted from the VLM's final hidden states to recover these
+targets with normalized KL supervision,
 regularizing the visual representation to encode the visible embodiment
 without manual masks, external grounding datasets, or stronger foundation-model
 supervision.
