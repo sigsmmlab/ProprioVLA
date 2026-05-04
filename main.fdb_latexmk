@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1777874202.28626 "main.aux" "main.bbl" "main" 1777874203.28278 0
-  "./references.bib" 1777375962.90778 6548 715e9d0c3a9437f34d2c7af9ebc514dc ""
+["bibtex main"] 1777890833.2726 "main.aux" "main.bbl" "main" 1777894003.69369 0
+  "./references.bib" 1777890826.67852 20655 333805247edab9338e68e0be0cc1506a ""
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1772380719 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "main.aux" 1777874203.14254 5837 02a5aee69795d6b77b55b4d9ae9ed613 "pdflatex"
+  "main.aux" 1777894003.57187 11446 48b47a53b4ead33a4789ba3cd4150a67 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1777874202.33518 "main.tex" "main.pdf" "main" 1777874203.2829 0
+["pdflatex"] 1777894002.94779 "main.tex" "main.pdf" "main" 1777894003.69381 0
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/enc/dvips/base/8r.enc" 1772380719 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1772380719 2971 def0b6c1f0b107b3b936def894055589 ""
   "/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/map/fontname/texfonts.map" 1772380719 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -127,16 +127,16 @@
   "Sections/appendix.tex" 1777115344 154 7cac34640f7e521371094c696afb1959 ""
   "Sections/checklist.tex" 1777115320 26167 b3450429513a86f46735450d0288b722 ""
   "Sections/conclusion.tex" 1777817403.10207 879 0b60a7848cb6d99291f9c075f50033d2 ""
-  "Sections/diagnostic.tex" 1777874127.54951 3857 4e4245d0416e04697359f6e69c1e397b ""
+  "Sections/diagnostic.tex" 1777882948.15944 3868 6eb0732f13afb8ff03c5caecbfc7083c ""
   "Sections/experiments.tex" 1777817411.1924 4151 bbd2b7b8a65328609b90e96217691b59 ""
-  "Sections/introduction.tex" 1777874167.17856 5206 99d8fd886cfb241cea1f7ba29954b44a ""
+  "Sections/introduction.tex" 1777894002.75158 5824 a3abbdfe03ba6ee194780ab443dcd05f ""
   "Sections/limitations.tex" 1777463649.02754 1071 c6e210e03ff37c5b81b2d8590a516a27 ""
-  "Sections/method.tex" 1777818516.93811 10374 4e2a804d00782bf616774b12d0eae8d9 ""
+  "Sections/method.tex" 1777874954.08245 10401 dc215c1eb8ceae9513c5935ee1cd24ca ""
   "Sections/related_work.tex" 1777817395.60259 2177 d967650cbcc034d8739243924cf36768 ""
   "figures/propriovla_main_figure_preview.png" 1777715958.9281 463247 420f39dcbe8584fe2bb08bea7ccfe534 ""
-  "main.aux" 1777874203.14254 5837 02a5aee69795d6b77b55b4d9ae9ed613 "pdflatex"
-  "main.bbl" 1777874202.33354 4587 5f3cde343cac9b1b63b2f47169f38c5e "bibtex main"
-  "main.out" 1777874203.14317 2970 8a58614465e5c637d96a6a633c22c28b "pdflatex"
+  "main.aux" 1777894003.57187 11446 48b47a53b4ead33a4789ba3cd4150a67 "pdflatex"
+  "main.bbl" 1777890833.32767 19753 47c600f1943111f0349ccd8e36ab4d30 "bibtex main"
+  "main.out" 1777894003.57251 2571 cad85b9902375555cc7d2597f49f3dc3 "pdflatex"
   "main.tex" 1777817558.22948 1203 03b31f2a32129f47b8852041bcb505d5 ""
   "neurips_2026.sty" 1773752160 13462 818d80447f57703e59b8270885421e82 ""
   (generated)

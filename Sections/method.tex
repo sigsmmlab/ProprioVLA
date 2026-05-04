@@ -27,7 +27,7 @@ the base VLA.
     \label{fig:propriovla_method}
 \end{figure}
 
-\subsection{Problem Setup and Visual Tokens}
+\paragraph{Problem Setup and Visual Tokens.}
 
 We formulate proprioceptive grounding as an auxiliary distribution-matching
 problem over the VLA visual-token grid. Let the VLA backbone return a sequence
@@ -53,6 +53,7 @@ by action prediction. This design separates grounding supervision from action
 execution: grounding is learned as a side objective, not as an additional
 runtime input.
 
+\setcounter{subsection}{1}
 \subsection{State-Aligned Residual Flow}
 
 SARF mines self-grounding targets from motion that is visually salient and
@@ -189,7 +190,7 @@ keeps the method faithful to the central goal: shaping shared visual tokens to
 encode visible embodiment, without adding pseudo-label-dependent inputs to the
 policy at test time.
 
-\subsection{Normalized KL Grounding Objective}
+\paragraph{Normalized KL Grounding Objective.}
 
 The grounding objective compares the predicted distribution \(A_t\) to the
 SARF target \(H_t\) with a scale-normalized KL divergence. Let
